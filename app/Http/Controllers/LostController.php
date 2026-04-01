@@ -13,14 +13,15 @@ class LostController extends Controller
 {
     public function index(Request $request)
     {
-        $query = LostItem::latest();
+        $query = LostItem::with('user')->latest();
 
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('item_name', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('location', 'like', "%{$search}%");
+                  ->orWhere('location', 'like', "%{$search}%")
+                  ->orWhere('brand_name', 'like', "%{$search}%");
             });
         }
 
@@ -36,11 +37,13 @@ class LostController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'brand_name' => 'nullable',
             'item_name' => 'required',
+            'item_type' => 'nullable',
             'location' => 'required',
             'date' => 'required',
             'description' => 'required',
+            'reward_offered' => 'nullable',
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
@@ -53,13 +56,20 @@ class LostController extends Controller
 
         LostItem::create([
             'user_id' => auth()->id(),
-            'name' => $request->name,
+            'name' => auth()->user()->name,
+            'brand_name' => $request->brand_name,
             'item_name' => $request->item_name,
+            'item_type' => $request->item_type,
             'location' => $request->location,
             'date' => $request->date,
             'description' => $request->description,
+            'reward_offered' => $request->reward_offered ? preg_replace('/[^0-9]/', '', $request->reward_offered) : null,
             'photo' => $photoPath
         ]);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Report berhasil dikirim']);
+        }
 
         return redirect('/lost')->with('success','Report berhasil dikirim');
     }
@@ -73,6 +83,17 @@ class LostController extends Controller
         }
 
         return view('edit-lost', compact('item'));
+    }
+
+    public function getItemJson($id)
+    {
+        $item = LostItem::findOrFail($id);
+
+        if ($item->user_id != auth()->id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        return response()->json($item);
     }
 
     public function update(Request $request, $id)
@@ -91,13 +112,19 @@ class LostController extends Controller
         }
 
         $item->update([
-            'name' => $request->name,
+            'brand_name' => $request->brand_name,
             'item_name' => $request->item_name,
+            'item_type' => $request->item_type,
             'location' => $request->location,
             'date' => $request->date,
             'description' => $request->description,
+            'reward_offered' => $request->reward_offered ? preg_replace('/[^0-9]/', '', $request->reward_offered) : null,
             'photo' => $photoPath
         ]);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Data berhasil diupdate']);
+        }
 
         return redirect('/lost')->with('success','Data berhasil diupdate');
     }
@@ -151,7 +178,7 @@ class LostController extends Controller
         ->orderBy('created_at','asc')
         ->get();
 
-        // Get users for sidebar
+        // Get users for sidebar - include all chat partners + always include admins
         $chatUserIds = Message::where('sender_id', $loginId)
             ->orWhere('receiver_id', $loginId)
             ->get()
@@ -161,7 +188,11 @@ class LostController extends Controller
             ->unique()
             ->filter(fn($id)=>$id != $loginId);
 
-        $users = User::whereIn('id', $chatUserIds)->get();
+        // Always include admin users
+        $adminIds = User::where('role', 'admin')->pluck('id');
+        $allIds = $chatUserIds->merge($adminIds)->unique();
+
+        $users = User::whereIn('id', $allIds)->get();
 
         return view('chat', compact('receiver','messages','users'));
     }
@@ -214,6 +245,60 @@ class LostController extends Controller
         return view('partials.chat-messages', compact('messages'));
     }
 
+    public function fetchUserStatus($userId)
+    {
+        $loginId = auth()->id();
+        $receiver = User::find($userId);
+
+        if (!$receiver) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        // Build receiver status HTML
+        $receiverHtml = $this->buildStatusHtml($receiver);
+
+        // Get sidebar user statuses
+        $chatUserIds = Message::where('sender_id', $loginId)
+            ->orWhere('receiver_id', $loginId)
+            ->get()
+            ->flatMap(function($msg){
+                return [$msg->sender_id, $msg->receiver_id];
+            })
+            ->unique()
+            ->filter(fn($id)=>$id != $loginId);
+
+        $adminIds = User::where('role', 'admin')->pluck('id');
+        $allIds = $chatUserIds->merge($adminIds)->unique();
+
+        $users = User::whereIn('id', $allIds)->get();
+
+        $sidebar = $users->map(function($user) {
+            return [
+                'id' => $user->id,
+                'html' => $this->buildStatusHtml($user),
+            ];
+        })->values();
+
+        return response()->json([
+            'receiver' => [
+                'id' => $receiver->id,
+                'html' => $receiverHtml,
+            ],
+            'sidebar' => $sidebar,
+        ]);
+    }
+
+    private function buildStatusHtml($user)
+    {
+        if ($user->is_online && $user->last_seen && Carbon::parse($user->last_seen)->diffInMinutes(now()) < 5) {
+            return '<span class="online-dot"></span> Online';
+        } elseif ($user->last_seen) {
+            return 'Last seen ' . Carbon::parse($user->last_seen)->diffForHumans();
+        } else {
+            return 'Offline';
+        }
+    }
+
     public function inbox(Request $request)
     {
         $loginId = auth()->id();
@@ -228,7 +313,11 @@ class LostController extends Controller
             })
             ->unique();
 
-        $users = User::whereIn('id', $chatUserIds)
+        // Always include admin users even without messages
+        $adminIds = User::where('role', 'admin')->pluck('id');
+        $allIds = $chatUserIds->merge($adminIds)->unique()->filter(fn($id) => $id != $loginId);
+
+        $users = User::whereIn('id', $allIds)
             ->get()
             ->map(function($user) use ($loginId){
 
@@ -256,19 +345,11 @@ class LostController extends Controller
 
                 $user->last_message_preview = $lastMsg
                     ? ($lastMsg->image ? '📷 Photo' : \Illuminate\Support\Str::limit($lastMsg->message, 30))
-                    : '';
+                    : 'Belum ada pesan';
 
                 return $user;
             })
             ->sortByDesc('last_message_time');
-
-        // Search filter
-        if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $users = $users->filter(function($user) use ($search) {
-                return str_contains(strtolower($user->name), $search);
-            });
-        }
 
         return view('inbox', compact('users'));
     }
@@ -287,7 +368,11 @@ class LostController extends Controller
             })
             ->unique();
 
-        $users = User::whereIn('id', $chatUserIds)
+        // Always include admin users even without messages
+        $adminIds = User::where('role', 'admin')->pluck('id');
+        $allIds = $chatUserIds->merge($adminIds)->unique()->filter(fn($id) => $id != $loginId);
+
+        $users = User::whereIn('id', $allIds)
             ->get()
             ->map(function($user) use ($loginId){
 
@@ -314,19 +399,11 @@ class LostController extends Controller
 
                 $user->last_message_preview = $lastMsg
                     ? ($lastMsg->image ? '📷 Photo' : \Illuminate\Support\Str::limit($lastMsg->message, 30))
-                    : '';
+                    : 'Belum ada pesan';
 
                 return $user;
             })
             ->sortByDesc('last_message_time');
-
-        // Search filter
-        if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $users = $users->filter(function($user) use ($search) {
-                return str_contains(strtolower($user->name), $search);
-            });
-        }
 
         return view('partials.inbox-list', compact('users'));
     }

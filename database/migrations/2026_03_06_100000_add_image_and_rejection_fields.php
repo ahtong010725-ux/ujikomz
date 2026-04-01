@@ -8,13 +8,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('messages', function (Blueprint $table) {
-            $table->string('image')->nullable()->after('message');
-        });
+        if (!Schema::hasColumn('messages', 'image')) {
+            Schema::table('messages', function (Blueprint $table) {
+                $table->string('image')->nullable()->after('message');
+            });
+        }
 
-        Schema::table('users', function (Blueprint $table) {
-            $table->text('rejection_reason')->nullable()->after('registration_status');
-        });
+        if (!Schema::hasColumn('users', 'rejection_reason')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->text('rejection_reason')->nullable()->after('registration_status');
+            });
+        }
     }
 
     public function down(): void

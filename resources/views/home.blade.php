@@ -92,5 +92,23 @@
     </div>
 </footer>
 <script src="{{ asset('js/home.js') }}"></script>
+<script src="{{ asset('js/theme.js') }}"></script>
+
+<script>
+// Auto-refresh home page every 30 seconds
+setInterval(function() {
+    fetch(window.location.href)
+        .then(res => res.text())
+        .then(html => {
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(html, 'text/html');
+            let newHero = doc.querySelector('.hero');
+            if (newHero) {
+                document.querySelector('.hero').innerHTML = newHero.innerHTML;
+            }
+        });
+}, 30000);
+</script>
+
 </body>
 </html>

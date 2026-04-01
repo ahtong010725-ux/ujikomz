@@ -9,10 +9,13 @@ class LostItem extends Model
 protected $fillable = [
     'user_id',
     'name',
+    'brand_name',
     'item_name',
+    'item_type',
     'location',
     'date',
     'description',
+    'reward_offered',
     'photo',
     'status'
 ];
@@ -22,9 +25,9 @@ public function user()
     return $this->belongsTo(User::class);
 }
 
-public function bookmarks()
+public function claims()
 {
-    return $this->morphMany(Bookmark::class, 'bookmarkable');
+    return $this->hasMany(Claim::class, 'item_id')->where('item_type', 'lost');
 }
 
 }

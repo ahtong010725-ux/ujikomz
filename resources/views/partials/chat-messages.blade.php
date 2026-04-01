@@ -17,9 +17,9 @@
             <span class="time">
                 {{ $msg->created_at->format('H:i') }}
                 @if($msg->is_read)
-                    <span style="color:#34b7f1;">✔✔</span>
+                    <span style="color: #6ec5ff; font-size: 13px; font-weight: 700;">✓✓</span>
                 @else
-                    ✔
+                    <span style="opacity: 0.5; font-size: 13px;">✓</span>
                 @endif
             </span>
         </div>

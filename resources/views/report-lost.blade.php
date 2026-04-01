@@ -34,24 +34,32 @@
     @csrf
 
     <div class="form-row">
-        <label>Your Name</label>
-        <input type="text" name="name" value="{{ old('name') }}" placeholder="Enter your name">
-        @error('name')
+        <label>Nama/Merk Barang</label>
+        <input type="text" name="brand_name" value="{{ old('brand_name') }}" placeholder="Masukkan nama/merk barang">
+        @error('brand_name')
             <small style="color:#e53935; font-size:12px; margin-top:4px; display:block;">{{ $message }}</small>
         @enderror
     </div>
 
     <div class="form-row">
         <label>Item Name</label>
-        <input type="text" name="item_name" value="{{ old('item_name') }}" placeholder="What did you lose?">
+        <input type="text" name="item_name" value="{{ old('item_name') }}" placeholder="Apa yang hilang?">
         @error('item_name')
             <small style="color:#e53935; font-size:12px; margin-top:4px; display:block;">{{ $message }}</small>
         @enderror
     </div>
 
     <div class="form-row">
+        <label>Jenis Barang</label>
+        <input type="text" name="item_type" value="{{ old('item_type') }}" placeholder="Contoh: Elektronik, Pakaian, Dokumen...">
+        @error('item_type')
+            <small style="color:#e53935; font-size:12px; margin-top:4px; display:block;">{{ $message }}</small>
+        @enderror
+    </div>
+
+    <div class="form-row">
         <label>Location</label>
-        <input type="text" name="location" value="{{ old('location') }}" placeholder="Where did you lose it?">
+        <input type="text" name="location" value="{{ old('location') }}" placeholder="Dimana kamu kehilangan?">
         @error('location')
             <small style="color:#e53935; font-size:12px; margin-top:4px; display:block;">{{ $message }}</small>
         @enderror
@@ -67,8 +75,16 @@
 
     <div class="form-row">
         <label>Description</label>
-        <textarea name="description" placeholder="Describe the item in detail...">{{ old('description') }}</textarea>
+        <textarea name="description" placeholder="Deskripsikan barang secara detail...">{{ old('description') }}</textarea>
         @error('description')
+            <small style="color:#e53935; font-size:12px; margin-top:4px; display:block;">{{ $message }}</small>
+        @enderror
+    </div>
+
+    <div class="form-row">
+        <label>Imbalan yang Diberikan</label>
+        <input type="text" name="reward_offered" value="{{ old('reward_offered') }}" placeholder="Contoh: Rp50.000, Traktir makan, dll (opsional)">
+        @error('reward_offered')
             <small style="color:#e53935; font-size:12px; margin-top:4px; display:block;">{{ $message }}</small>
         @enderror
     </div>

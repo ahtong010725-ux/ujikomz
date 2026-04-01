@@ -6,7 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LostController;
 use App\Http\Controllers\FoundController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\BookmarkController;
+use App\Http\Controllers\RewardController;
 
 
 Route::get('/', function () {
@@ -26,6 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/report-lost', [LostController::class, 'create']);
     Route::post('/report-lost', [LostController::class, 'store']);
     Route::get('/lost/{id}/edit', [LostController::class, 'edit']);
+    Route::get('/lost/{id}/json', [LostController::class, 'getItemJson']);
     Route::put('/lost/{id}', [LostController::class, 'update']);
     Route::patch('/lost/{id}/status', [LostController::class, 'updateStatus'])->name('lost.status');
     Route::delete('/lost/{id}', [LostController::class, 'destroy']);
@@ -40,6 +41,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/report-found', [FoundController::class, 'create']);
     Route::post('/report-found', [FoundController::class, 'store']);
     Route::get('/found/{id}/edit', [FoundController::class, 'edit']);
+    Route::get('/found/{id}/json', [FoundController::class, 'getItemJson']);
     Route::put('/found/{id}', [FoundController::class, 'update']);
     Route::patch('/found/{id}/status', [FoundController::class, 'updateStatus'])->name('found.status');
     Route::delete('/found/{id}', [FoundController::class, 'destroy']);
@@ -57,10 +59,13 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
+});
 
-    // ===================== BOOKMARKS =====================
-    Route::get('/bookmarks', [BookmarkController::class, 'index'])->name('bookmarks.index');
-    Route::post('/bookmarks/toggle', [BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
+// ===================== REWARDS & LEADERBOARD =====================
+Route::get('/leaderboard', [RewardController::class, 'leaderboard'])->name('leaderboard');
+
+Route::middleware('auth')->group(function () {
+    Route::post('/claim/{type}/{id}', [RewardController::class, 'claimItem'])->name('claim.item');
 });
 
 // ===================== ADMIN =====================
@@ -72,12 +77,18 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
     Route::delete('/admin/users/{id}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy');
     Route::get('/admin/items', [AdminController::class, 'items'])->name('admin.items');
     Route::delete('/admin/items/{type}/{id}', [AdminController::class, 'destroyItem'])->name('admin.items.destroy');
+
+    // Claims management
+    Route::get('/admin/claims', [AdminController::class, 'claims'])->name('admin.claims');
+    Route::post('/admin/claims/{id}/approve', [AdminController::class, 'approveClaim'])->name('admin.claims.approve');
+    Route::post('/admin/claims/{id}/reject', [AdminController::class, 'rejectClaim'])->name('admin.claims.reject');
 });
 
 
 // ===================== CHAT & INBOX =====================
 
 Route::middleware('auth')->group(function () {
+    Route::get('/chat/status/{id}', [LostController::class, 'fetchUserStatus']);
     Route::get('/chat/fetch/{id}', [LostController::class, 'fetchMessages']);
     Route::post('/chat/{user}', [LostController::class, 'sendMessage']);
     Route::get('/chat/{user}', [LostController::class, 'chat'])->name('chat');

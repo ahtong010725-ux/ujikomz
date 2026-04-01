@@ -1,5 +1,4 @@
 @php
-    $isAdmin = auth()->check() && auth()->user()->role === 'admin';
     $admins = $users->where('role', 'admin');
     $regulars = $users->where('role', '!=', 'admin');
 @endphp
@@ -27,7 +26,7 @@
                 @if($user->unread_count > 0)
                     <span style="color:#2e7d32;font-weight:600;">{{ $user->unread_count }} pesan baru</span>
                 @else
-                    {{ $user->last_message_preview ?? 'Tidak ada pesan baru' }}
+                    {{ $user->last_message_preview ?? 'Belum ada pesan' }}
                 @endif
             </small>
         </div>
@@ -50,19 +49,19 @@
 @forelse($regulars as $user)
     <a href="/chat/{{ $user->id }}" class="inbox-item">
         <div class="inbox-avatar">
-            @if($isAdmin && $user->photo)
+            @if($user->photo)
                 <img src="{{ asset('storage/' . $user->photo) }}" alt="">
             @else
                 {{ strtoupper(substr($user->name, 0, 1)) }}
             @endif
         </div>
         <div class="inbox-user-info">
-            <strong>{{ $isAdmin ? $user->name : 'Anonymous' }}</strong>
+            <strong>{{ $user->name }}</strong>
             <small class="inbox-preview">
                 @if($user->unread_count > 0)
                     <span style="color:#2e7d32;font-weight:600;">{{ $user->unread_count }} pesan baru</span>
                 @else
-                    {{ $user->last_message_preview ?? 'Tidak ada pesan baru' }}
+                    {{ $user->last_message_preview ?? 'Belum ada pesan' }}
                 @endif
             </small>
         </div>

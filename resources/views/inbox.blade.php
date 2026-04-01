@@ -12,12 +12,11 @@
 .inbox-container {
     max-width: 720px;
     margin: 30px auto;
-    background: rgba(255,255,255,0.85);
+    background: rgba(255,255,255,0.7);
     backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.06);
-    border: 1px solid rgba(255,255,255,0.7);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.06);
+    border: 1px solid rgba(255,255,255,0.6);
     overflow: hidden;
     animation: fadeInUp 0.5s ease;
 }
@@ -28,44 +27,18 @@
 }
 
 .inbox-header {
-    background: linear-gradient(135deg, #2e7d32, #43a047);
+    background: linear-gradient(135deg, #1a1a2e, #2d2d4e);
     color: white;
-    padding: 20px 28px;
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: 0.3px;
+    padding: 18px 28px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
 .inbox-header svg { margin-right: 10px; }
-
-.inbox-search {
-    padding: 14px 24px;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-}
-
-.inbox-search input {
-    width: 100%;
-    padding: 11px 18px;
-    border-radius: 25px;
-    border: 1.5px solid rgba(0,0,0,0.08);
-    background: rgba(255,255,255,0.8);
-    color: #333;
-    font-size: 14px;
-    font-family: 'Poppins', sans-serif;
-    outline: none;
-    transition: all 0.3s ease;
-}
-
-.inbox-search input::placeholder { color: #aaa; }
-
-.inbox-search input:focus {
-    border-color: #43a047;
-    box-shadow: 0 0 0 3px rgba(67,160,71,0.1);
-    background: white;
-}
 
 .inbox-section-label {
     padding: 10px 28px;
@@ -95,7 +68,7 @@
 }
 
 .inbox-item:hover {
-    background: rgba(46,125,50,0.04);
+    background: rgba(102,126,234,0.04);
 }
 
 .inbox-avatar {
@@ -114,7 +87,7 @@
 }
 
 .inbox-avatar.admin-avatar {
-    background: linear-gradient(135deg, #007bff, #00d2ff);
+    background: linear-gradient(135deg, #667eea, #764ba2);
 }
 
 .inbox-avatar img {
@@ -160,7 +133,7 @@
 }
 
 .badge-admin {
-    background: linear-gradient(135deg, #007bff, #00d2ff);
+    background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
     padding: 1px 7px;
     border-radius: 8px;
@@ -169,7 +142,7 @@
 }
 
 .unread-badge {
-    background: linear-gradient(135deg, #e53935, #ef5350);
+    background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
     min-width: 22px;
     height: 22px;
@@ -179,7 +152,7 @@
     justify-content: center;
     font-size: 11px;
     font-weight: 600;
-    box-shadow: 0 2px 8px rgba(229,57,53,0.3);
+    box-shadow: 0 2px 8px rgba(102,126,234,0.3);
 }
 
 .empty-state {
@@ -198,18 +171,12 @@
 
 /* Dark Mode */
 body.dark-theme .inbox-container {
-    background: rgba(20,20,20,0.6);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(18,18,28,0.6);
+    border-color: rgba(255,255,255,0.06);
 }
 
 body.dark-theme .inbox-header {
-    background: linear-gradient(135deg, #1a3d1e, #2e5e32);
-}
-
-body.dark-theme .inbox-search input {
-    background: rgba(40,40,40,0.8);
-    border-color: rgba(255,255,255,0.1);
-    color: #eee;
+    background: linear-gradient(135deg, #12121a, #1e1e30);
 }
 
 body.dark-theme .inbox-item { color: #ddd; border-bottom-color: rgba(255,255,255,0.05); }
@@ -232,10 +199,6 @@ body.dark-theme .inbox-section-label { background: rgba(255,255,255,0.03); color
         </div>
     </div>
 
-    <div class="inbox-search">
-        <input type="text" id="inboxSearchInput" placeholder="Search conversations..." oninput="searchInbox()">
-    </div>
-
     <div id="inboxList">
         @include('partials.inbox-list', ['users' => $users])
     </div>
@@ -253,23 +216,9 @@ body.dark-theme .inbox-section-label { background: rgba(255,255,255,0.03); color
 <script src="{{ asset('js/theme.js') }}"></script>
 
 <script>
-let searchTimeout;
-
-function searchInbox() {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-        let query = document.getElementById('inboxSearchInput').value;
-        fetch('/inbox/fetch?search=' + encodeURIComponent(query))
-        .then(res => res.text())
-        .then(data => {
-            document.getElementById("inboxList").innerHTML = data;
-        });
-    }, 300);
-}
-
+// Auto-refresh inbox every 5 seconds
 function loadInbox() {
-    let query = document.getElementById('inboxSearchInput')?.value || '';
-    fetch('/inbox/fetch?search=' + encodeURIComponent(query))
+    fetch('/inbox/fetch')
     .then(res => res.text())
     .then(data => {
         document.getElementById("inboxList").innerHTML = data;

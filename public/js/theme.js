@@ -1,40 +1,47 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const themeToggleBtn = document.getElementById("theme-toggle");
-    const currentTheme = localStorage.getItem("theme");
+// ===== THEME TOGGLE =====
+// Apply theme immediately before paint to prevent flash
+(function () {
+    var saved = localStorage.getItem("theme");
+    if (saved === "dark") {
+        document.documentElement.classList.add("dark-theme");
+        document.body && document.body.classList.add("dark-theme");
+    }
+})();
 
-    // Apply the saved theme on load
-    if (currentTheme) {
-        document.body.classList.add(currentTheme);
-        updateIcon(currentTheme);
-    } else {
-        // Check OS preference
-        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        if (prefersDark) {
-            document.body.classList.add("dark-theme");
-            updateIcon("dark-theme");
-        }
+document.addEventListener("DOMContentLoaded", function () {
+    // Re-apply in case body wasn't ready during IIFE
+    var saved = localStorage.getItem("theme");
+    if (saved === "dark") {
+        document.body.classList.add("dark-theme");
     }
 
-    if (themeToggleBtn) {
-        themeToggleBtn.addEventListener("click", () => {
-            if (document.body.classList.contains("dark-theme")) {
-                document.body.classList.remove("dark-theme");
-                localStorage.setItem("theme", "light-theme");
-                updateIcon("light-theme");
-            } else {
-                document.body.classList.add("dark-theme");
-                localStorage.setItem("theme", "dark-theme");
-                updateIcon("dark-theme");
-            }
-        });
+    var btn = document.getElementById("theme-toggle");
+    if (!btn) return;
+
+    // Prevent double-binding
+    if (btn.dataset.bound) return;
+    btn.dataset.bound = "1";
+
+    function updateIcon() {
+        var isDark = document.body.classList.contains("dark-theme");
+        btn.textContent = isDark ? "☀️" : "🌙";
     }
 
-    function updateIcon(theme) {
-        if (!themeToggleBtn) return;
-        if (theme === "dark-theme") {
-            themeToggleBtn.innerHTML = "☀️"; // Show sun to toggle light mode
+    updateIcon();
+
+    btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var isDark = document.body.classList.contains("dark-theme");
+        if (isDark) {
+            document.body.classList.remove("dark-theme");
+            document.documentElement.classList.remove("dark-theme");
+            localStorage.setItem("theme", "light");
         } else {
-            themeToggleBtn.innerHTML = "🌙"; // Show moon to toggle dark mode
+            document.body.classList.add("dark-theme");
+            document.documentElement.classList.add("dark-theme");
+            localStorage.setItem("theme", "dark");
         }
-    }
+        updateIcon();
+    });
 });

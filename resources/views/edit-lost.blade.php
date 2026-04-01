@@ -32,13 +32,18 @@
         @method('PUT')
 
         <div class="form-row">
-            <label>Your Name</label>
-            <input type="text" name="name" value="{{ $item->name }}" placeholder="Enter your name">
+            <label>Nama/Merk Barang</label>
+            <input type="text" name="brand_name" value="{{ $item->brand_name }}" placeholder="Masukkan nama/merk barang">
         </div>
 
         <div class="form-row">
             <label>Item Name</label>
             <input type="text" name="item_name" value="{{ $item->item_name }}" placeholder="Item name">
+        </div>
+
+        <div class="form-row">
+            <label>Jenis Barang</label>
+            <input type="text" name="item_type" value="{{ $item->item_type }}" placeholder="Contoh: Elektronik, Pakaian, Dokumen...">
         </div>
 
         <div class="form-row">
@@ -54,6 +59,11 @@
         <div class="form-row">
             <label>Description</label>
             <textarea name="description" placeholder="Describe the item...">{{ $item->description }}</textarea>
+        </div>
+
+        <div class="form-row">
+            <label>Imbalan yang Diberikan</label>
+            <input type="text" name="reward_offered" value="{{ $item->reward_offered }}" placeholder="Contoh: Rp50.000, Traktir makan, dll (opsional)">
         </div>
 
         <div class="form-row">
@@ -84,5 +94,6 @@
 </footer>
 
 <script src="{{ asset('js/home.js') }}"></script>
+<script src="{{ asset('js/theme.js') }}"></script>
 </body>
 </html>
