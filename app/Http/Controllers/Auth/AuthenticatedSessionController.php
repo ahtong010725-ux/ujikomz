@@ -28,24 +28,16 @@ class AuthenticatedSessionController extends Controller
 
         $user = Auth::user();
 
-        // Check registration status
-        if ($user->registration_status === 'pending') {
+        // Check if user is hard-banned
+        if ($user->isHardBanned()) {
+            $banMsg = '🚫 Akun kamu telah di-banned. Alasan: ' . ($user->ban_reason ?? 'Tidak ada alasan.');
+            if ($user->ban_expires_at) {
+                $banMsg .= ' Berlaku sampai: ' . $user->ban_expires_at->format('d-m-Y H:i');
+            }
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            return back()->withErrors([
-                'login' => 'Akun anda masih menunggu persetujuan admin. Silakan tunggu hingga akun diverifikasi.'
-            ]);
-        }
-
-        if ($user->registration_status === 'rejected') {
-            $reason = $user->rejection_reason ?? 'Tidak ada alasan yang diberikan.';
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-            return back()->withErrors([
-                'login' => 'Akun anda ditolak oleh admin. Alasan: ' . $reason
-            ]);
+            return back()->withErrors(['login' => $banMsg]);
         }
 
         // Set online status
