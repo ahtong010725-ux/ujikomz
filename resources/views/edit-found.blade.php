@@ -32,18 +32,8 @@
         @method('PUT')
 
         <div class="form-row">
-            <label>Nama/Merk Barang</label>
-            <input type="text" name="brand_name" value="{{ $item->brand_name }}" placeholder="Masukkan nama/merk barang">
-        </div>
-
-        <div class="form-row">
-            <label>Item Name</label>
-            <input type="text" name="item_name" value="{{ $item->item_name }}" placeholder="Item name">
-        </div>
-
-        <div class="form-row">
-            <label>Jenis Barang</label>
-            <input type="text" name="item_type" value="{{ $item->item_type }}" placeholder="Contoh: Elektronik, Pakaian, Dokumen...">
+            <label>Nama & Jenis Barang</label>
+            <input type="text" name="item_name" value="{{ $item->item_name }}" placeholder="Contoh: Laptop Asus (Elektronik), Jaket Hitam (Pakaian)...">
         </div>
 
         <div class="form-row">
@@ -52,7 +42,7 @@
         </div>
 
         <div class="form-row">
-            <label>Date</label>
+            <label>Tanggal</label>
             <input type="date" name="date" value="{{ $item->date }}">
         </div>
 
@@ -85,10 +75,11 @@
     <div><h4>Site</h4>Lost<br>Report Lost<br>Found<br>Report Found</div>
     <div><h4>Help</h4>Customer Support<br>Terms & Conditions<br>Privacy Policy</div>
     <div><h4>Links</h4>LinkedIn<br>Facebook<br>YouTube<br>About Us</div>
-    <div><h4>Contact</h4>Tel: +94 716520690<br>Email: talkprojects@wenix.com</div>
+    <div><h4>Contact</h4>Tel: +62 895 3440 39020<br>Email: rmukhrij@gmail.com</div>
 </footer>
 
 <script src="{{ asset('js/home.js') }}"></script>
 <script src="{{ asset('js/theme.js') }}"></script>
+<script src="{{ asset('js/date-input.js') }}"></script>
 </body>
 </html>

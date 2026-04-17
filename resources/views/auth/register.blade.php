@@ -85,6 +85,9 @@
             <div class="input-group">
                 <label>Profile Photo</label>
                 <input type="file" name="photo" accept="image/*" required>
+                <small style="color: #e67e22; font-weight: 500; margin-top: 6px; display: block;">
+                    ⚠️ Wajib upload foto wajah asli (bukan avatar/kartun/foto orang lain)
+                </small>
                 @error('photo')
                     <small class="error-text">{{ $message }}</small>
                 @enderror
@@ -122,6 +125,7 @@
     </div>
 </div>
 <script src="{{ asset('js/theme.js') }}"></script>
+<script src="{{ asset('js/date-input.js') }}"></script>
 <script>
     function togglePassword() {
         const password = document.getElementById("password");

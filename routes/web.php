@@ -7,6 +7,7 @@ use App\Http\Controllers\LostController;
 use App\Http\Controllers\FoundController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\RewardController;
+use App\Http\Controllers\GroupChatController;
 
 
 Route::get('/', function () {
@@ -121,6 +122,13 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/inbox/fetch', [LostController::class, 'fetchInbox']);
 Route::get('/inbox', [LostController::class, 'inbox'])->middleware('auth');
+
+// ===================== GROUP CHAT =====================
+Route::middleware('auth')->group(function () {
+    Route::get('/group-chat', [GroupChatController::class, 'index'])->name('group-chat');
+    Route::get('/group-chat/fetch', [GroupChatController::class, 'fetchMessages']);
+    Route::post('/group-chat/send', [GroupChatController::class, 'sendMessage']);
+});
 
 
 require __DIR__.'/auth.php';

@@ -61,13 +61,6 @@
 
     <h4>{{ $item->item_name }} @if($item->status == 'resolved') <span style="color: green; font-size: 0.8em; border: 1px solid green; padding: 2px 6px; border-radius: 12px; margin-left: 5px;">Terverifikasi ✅</span> @endif</h4>
 
-    @if($item->brand_name)
-    <p style="font-size: 13px; color: #888; margin: 2px 0;">🏷️ {{ $item->brand_name }}</p>
-    @endif
-    @if($item->item_type)
-    <p style="font-size: 13px; color: #888; margin: 2px 0;">📦 Jenis: {{ $item->item_type }}</p>
-    @endif
-
     <p class="location">{{ $item->location }}</p>
     <p class="desc">{{ $item->description }}</p>
 
@@ -130,12 +123,8 @@
         <form id="reportForm" enctype="multipart/form-data">
             @csrf
             <div class="modal-form-row">
-                <label>Nama / Barang</label>
-                <input type="text" name="item_name" placeholder="Apa yang kamu temukan?" required>
-            </div>
-            <div class="modal-form-row">
-                <label>Jenis Barang</label>
-                <input type="text" name="item_type" placeholder="Contoh: Elektronik, Pakaian, Dokumen...">
+                <label>Nama & Jenis Barang</label>
+                <input type="text" name="item_name" placeholder="Contoh: Laptop Asus (Elektronik), Jaket Hitam (Pakaian)..." required>
             </div>
             <div class="modal-form-row">
                 <label>Lokasi</label>
@@ -174,12 +163,8 @@
             @method('PUT')
             <input type="hidden" name="_editId" id="editItemId">
             <div class="modal-form-row">
-                <label>Nama / Barang</label>
+                <label>Nama & Jenis Barang</label>
                 <input type="text" name="item_name" id="edit_item_name" required>
-            </div>
-            <div class="modal-form-row">
-                <label>Jenis Barang</label>
-                <input type="text" name="item_type" id="edit_item_type">
             </div>
             <div class="modal-form-row">
                 <label>Lokasi</label>
@@ -271,8 +256,8 @@
     </div>
     <div>
         <h4>Contact</h4>
-        Tel: +94 716520690<br>
-        Email: talkprojects@wenix.com
+        Tel: +62 895 3440 39020<br>
+        Email: rmukhrij@gmail.com
     </div>
 </footer>
 
@@ -361,9 +346,12 @@ function openEditModal(itemId) {
     .then(res => res.json())
     .then(data => {
         document.getElementById('edit_item_name').value = data.item_name || '';
-        document.getElementById('edit_item_type').value = data.item_type || '';
         document.getElementById('edit_location').value = data.location || '';
-        document.getElementById('edit_date').value = data.date || '';
+        if (typeof setDateValue === 'function') {
+            setDateValue('edit_date', data.date || '');
+        } else {
+            document.getElementById('edit_date').value = data.date || '';
+        }
         document.getElementById('edit_description').value = data.description || '';
         document.getElementById('edit_reward_offered').value = data.reward_offered || '';
     });
@@ -455,10 +443,13 @@ function refreshItemList() {
         });
 }
 
-// Auto-refresh every 15 seconds
+// Auto-refresh every 5 seconds (skip when modal is open)
 setInterval(function() {
-    refreshItemList();
-}, 15000);
+    var anyModalOpen = document.querySelector('.report-modal-overlay[style*="flex"], .report-modal-overlay[style*="block"]');
+    if (!anyModalOpen) {
+        refreshItemList();
+    }
+}, 5000);
 
 // ==================== CURRENCY FORMAT ====================
 function formatRupiah(angka) {
@@ -524,5 +515,6 @@ document.getElementById('reportUserModal')?.addEventListener('click', function(e
 });
 </script>
 
+<script src="{{ asset('js/date-input.js') }}"></script>
 </body>
 </html>

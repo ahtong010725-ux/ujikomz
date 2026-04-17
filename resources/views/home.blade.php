@@ -88,14 +88,14 @@
     </div>
     <div>
         <h4>Contact</h4>
-        Tel: +94 715260980<br>Email: talkprojects@wewin.com
+        Tel: +62 895 3440 39020<br>Email: rmukhrij@gmail.com
     </div>
 </footer>
 <script src="{{ asset('js/home.js') }}"></script>
 <script src="{{ asset('js/theme.js') }}"></script>
 
 <script>
-// Auto-refresh home page every 30 seconds
+// Auto-refresh home page every 10 seconds
 setInterval(function() {
     fetch(window.location.href)
         .then(res => res.text())
@@ -107,7 +107,7 @@ setInterval(function() {
                 document.querySelector('.hero').innerHTML = newHero.innerHTML;
             }
         });
-}, 30000);
+}, 10000);
 </script>
 
 </body>

@@ -39,6 +39,12 @@
                 </a>
             </li>
 
+            @if(auth()->user()->kelas)
+            <li>
+                <a href="/group-chat">👥 Group</a>
+            </li>
+            @endif
+
             {{-- Mobile-only: Profile as regular nav link --}}
             <li class="mobile-nav-item">
                 <a href="/profile">

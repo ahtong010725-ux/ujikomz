@@ -334,7 +334,7 @@ body.dark-theme .lb-table-header { background: linear-gradient(135deg, #12121a, 
     <div><h4>Site</h4>Lost<br>Report Lost<br>Found<br>Report Found</div>
     <div><h4>Help</h4>Customer Support<br>Terms & Conditions<br>Privacy Policy</div>
     <div><h4>Links</h4>LinkedIn<br>Facebook<br>YouTube<br>About Us</div>
-    <div><h4>Contact</h4>Tel: +94 716520690<br>Email: talkprojects@wenix.com</div>
+    <div><h4>Contact</h4>Tel: +62 895 3440 39020<br>Email: rmukhrij@gmail.com</div>
 </footer>
 
 <script src="{{ asset('js/home.js') }}"></script>
@@ -353,7 +353,7 @@ setInterval(function() {
                 document.querySelector('.lb-table').innerHTML = newTable.innerHTML;
             }
         });
-}, 30000);
+}, 10000);
 </script>
 
 </body>
